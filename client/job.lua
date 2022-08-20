@@ -21,8 +21,8 @@ local function GetClosestPlayer()
                 closestDistance = distance
             end
         end
-    end
-    return closestPlayer, closestDistance
+	end
+	return closestPlayer, closestDistance
 end
 
 function TakeOutVehicle(vehicleInfo)
@@ -96,10 +96,11 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     exports.spawnmanager:setAutoSpawn(false)
     local ped = PlayerPedId()
     local player = PlayerId()
+    TriggerServerEvent("hospital:server:SetDoctor")
     CreateThread(function()
         Wait(5000)
-        SetEntityMaxHealth(ped, 200)
-        SetEntityHealth(ped, 200)
+        -- SetEntityMaxHealth(ped, 200)
+        -- SetEntityHealth(ped, 200)
         SetPlayerHealthRechargeMultiplier(player, 0.0)
         SetPlayerHealthRechargeLimit(player, 0.0)
     end)
@@ -108,6 +109,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
         QBCore.Functions.GetPlayerData(function(PlayerData)
             PlayerJob = PlayerData.job
             onDuty = PlayerData.job.onduty
+            SetEntityHealth(PlayerPedId(), PlayerData.metadata["health"])
             SetPedArmour(PlayerPedId(), PlayerData.metadata["armor"])
             if (not PlayerData.metadata["inlaststand"] and PlayerData.metadata["isdead"]) then
                 deathTime = Laststand.ReviveInterval
@@ -275,14 +277,14 @@ RegisterNetEvent('hospital:client:TreatWounds', function()
 end)
 
 local check = false
-local function EMSControls(variable)
+ local function EMSControls(variable)
     CreateThread(function()
         check = true
         while check do
             if IsControlJustPressed(0, 38) then
                 exports['qb-core']:KeyPressed(38)
                 if variable == "sign" then
-                    TriggerEvent('EMSToggle:Duty')
+                   TriggerEvent('EMSToggle:Duty')
                 elseif variable == "stash" then
                     TriggerEvent('qb-ambulancejob:stash')
                 elseif variable == "armory" then
@@ -325,14 +327,14 @@ local function EMSVehicle(k)
                 exports['qb-core']:KeyPressed(38)
                 CheckVehicle = false
                 local ped = PlayerPedId()
-                if IsPedInAnyVehicle(ped, false) then
-                    QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(ped))
-                else
-                    local currentVehicle = k
-                    MenuGarage(currentVehicle)
-                    currentGarage = currentVehicle
+                    if IsPedInAnyVehicle(ped, false) then
+                        QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(ped))
+                    else
+                        local currentVehicle = k
+                        MenuGarage(currentVehicle)
+                        currentGarage = currentVehicle
+                    end
                 end
-            end
             Wait(1)
         end
     end)
@@ -347,23 +349,23 @@ local function EMSHelicopter(k)
                 exports['qb-core']:KeyPressed(38)
                 CheckHeli = false
                 local ped = PlayerPedId()
-                if IsPedInAnyVehicle(ped, false) then
-                    QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(ped))
-                else
-                    local currentHelictoper = k
-                    local coords = Config.Locations["helicopter"][currentHelictoper]
+                    if IsPedInAnyVehicle(ped, false) then
+                        QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(ped))
+                    else
+                        local currentHelictoper = k
+                        local coords = Config.Locations["helicopter"][currentHelictoper]
                     QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
                         local veh = NetToVeh(netId)
                         SetVehicleNumberPlateText(veh, Lang:t('info.heli_plate') .. tostring(math.random(1000, 9999)))
-                        SetEntityHeading(veh, coords.w)
-                        SetVehicleLivery(veh, 1) -- Ambulance Livery
-                        exports['LegacyFuel']:SetFuel(veh, 100.0)
-                        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-                        TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
-                        SetVehicleEngineOn(veh, true, true)
+                            SetEntityHeading(veh, coords.w)
+                            SetVehicleLivery(veh, 1) -- Ambulance Livery
+                            exports['LegacyFuel']:SetFuel(veh, 100.0)
+                            TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
+                            TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
+                            SetVehicleEngineOn(veh, true, true)
                     end, Config.Helicopter, coords, true)
+                    end
                 end
-            end
             Wait(1)
         end
     end)

@@ -141,11 +141,16 @@ RegisterNetEvent('hospital:server:SetLaststandStatus', function(bool)
 end)
 
 RegisterNetEvent('hospital:server:SetArmor', function(amount)
-	local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-	if Player then
-		Player.Functions.SetMetaData("armor", amount)
-	end
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+        local newArmor = amount
+        if newArmor <= 0 then
+            newArmor = 0
+        end
+        Player.Functions.SetMetaData('armor', newArmor)
+        Player.Functions.Save()
+    end
 end)
 
 RegisterNetEvent('hospital:server:TreatWounds', function(playerId)
@@ -214,12 +219,12 @@ RegisterNetEvent('hospital:server:SendDoctorAlert', function()
     local src = source
     if not doctorCalled then
         doctorCalled = true
-        local players = QBCore.Functions.GetQBPlayers()
-        for _, v in pairs(players) do
-            if v.PlayerData.job.name == 'ambulance' and v.PlayerData.job.onduty then
-                TriggerClientEvent('QBCore:Notify', v.PlayerData.source, Lang:t('info.dr_needed'), 'ambulance')
-            end
-        end
+    local players = QBCore.Functions.GetQBPlayers()
+    for _, v in pairs(players) do
+        if v.PlayerData.job.name == 'ambulance' and v.PlayerData.job.onduty then
+			TriggerClientEvent('QBCore:Notify', v.PlayerData.source, Lang:t('info.dr_needed'), 'ambulance')
+		end
+	end
         SetTimeout(Config.DocCooldown * 60000, function()
             doctorCalled = false
         end)

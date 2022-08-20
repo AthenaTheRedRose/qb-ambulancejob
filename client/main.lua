@@ -235,7 +235,8 @@ local function ResetAll()
         limbs = BodyParts,
         isBleeding = tonumber(isBleeding)
     })
-    TriggerServerEvent("hospital:server:resetHungerThirst")
+    TriggerServerEvent("QBCore:Server:SetMetaData", "hunger", 100)
+    TriggerServerEvent("QBCore:Server:SetMetaData", "thirst", 100)
 end
 
 local function loadAnimDict(dict)
@@ -312,7 +313,7 @@ local function LeaveBed()
     bedObject = nil
     bedOccupyingData = nil
     isInHospitalBed = false
-
+	
     QBCore.Functions.GetPlayerData(function(PlayerData)
 	if PlayerData.metadata["injail"] > 0 then
 		TriggerEvent("prison:client:Enter", PlayerData.metadata["injail"])
@@ -587,10 +588,11 @@ RegisterNetEvent('hospital:client:Revive', function()
     ClearPedBloodDamage(player)
     SetPlayerSprint(PlayerId(), true)
     ResetAll()
-    ResetPedMovementClipset(player, 0.0)
+    --ResetPedMovementClipset(player, 0.0)
     TriggerServerEvent('hud:server:RelieveStress', 100)
     TriggerServerEvent("hospital:server:SetDeathStatus", false)
     TriggerServerEvent("hospital:server:SetLaststandStatus", false)
+    --TriggerServerEvent('qb-walkstyles:server:walkstyles', 'get')
     emsNotified = false
     QBCore.Functions.Notify(Lang:t('info.healthy'))
 end)
@@ -692,7 +694,8 @@ end)
 RegisterNetEvent('hospital:client:adminHeal', function()
     local ped = PlayerPedId()
     SetEntityHealth(ped, 200)
-    TriggerServerEvent("hospital:server:resetHungerThirst")
+    TriggerServerEvent("QBCore:Server:SetMetaData", "hunger", 100)
+    TriggerServerEvent("QBCore:Server:SetMetaData", "thirst", 100)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
